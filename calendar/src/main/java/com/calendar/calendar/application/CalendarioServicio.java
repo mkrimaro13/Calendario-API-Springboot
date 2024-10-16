@@ -16,6 +16,7 @@ import com.calendar.calendar.core.interfaces.services.ICalendarioServicio;
 import com.calendar.calendar.domain.Calendario;
 import com.calendar.calendar.domain.Tipo;
 import com.calendar.calendar.domain.DTOs.FestivoDto;
+
 @Service
 public class CalendarioServicio implements ICalendarioServicio {
     @Autowired
@@ -50,8 +51,9 @@ public class CalendarioServicio implements ICalendarioServicio {
 
             List<Calendario> diasCalendario = new ArrayList<>();
             for (FestivoDto festivo : festivos) {
-                String diasemana = festivo.getFecha().getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
-                Calendario calendario = new Calendario(0, festivo.getFecha(), new Tipo(3),
+                LocalDate fecha = festivo.getFecha();
+                String diasemana = fecha.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
+                Calendario calendario = new Calendario(0, fecha, new Tipo(3),
                         diasemana);
                 diasCalendario.add(calendario);
             }
