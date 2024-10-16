@@ -19,9 +19,9 @@ public class FestivoCliente {
     @Autowired
     private RestTemplate restTemplate;
 
-    public List<FestivoDto> obtenerFestivos(int año, String url) {
-        // String url = "http://localhost:3030/festivos/" + año;
-        ResponseEntity<String> response = restTemplate.exchange(url + año, HttpMethod.GET, null,
+    public List<FestivoDto> obtenerFestivos(int año) {
+        String url = "http://localhost:3030/festivos/" + año;
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<String>() {
 
                 });

@@ -19,11 +19,6 @@ public class CalendarioControlador {
     @Autowired
     private ICalendarioServicio servicio;
 
-    @GetMapping("/festivos/{año}")
-    public List<LocalDate> listarFestivos(@PathVariable int año) {
-        return servicio.listarFestivos(año);
-    }
-
     @GetMapping("/generar/{año}")
     public boolean agregarCalendario(@PathVariable int año) {
         return servicio.agregarCalendario(año);

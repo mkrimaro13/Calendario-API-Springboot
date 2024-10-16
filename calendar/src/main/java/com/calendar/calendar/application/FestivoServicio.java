@@ -14,11 +14,9 @@ public class FestivoServicio implements IFestivoServicio {
     @Autowired
     private FestivoCliente cliente;
 
-    private String url = "http://localhost:3030/festivos/";
-
     @Override
     public List<FestivoDto> obtenerFestivos(int año) {
-        return cliente.obtenerFestivos(año, url);
+        return cliente.obtenerFestivos(año);
     }
 
 }

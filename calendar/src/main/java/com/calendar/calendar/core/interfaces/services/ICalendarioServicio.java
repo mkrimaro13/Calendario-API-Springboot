@@ -8,7 +8,7 @@ import com.calendar.calendar.domain.Calendario;
 public interface ICalendarioServicio {
 
     // Cambio a LocalDate para no tener que manejar horas.
-    public List<LocalDate> listarFestivos(int año);
+    // public List<LocalDate> listarFestivos(int año);
 
     public boolean agregarCalendario(int año);
 

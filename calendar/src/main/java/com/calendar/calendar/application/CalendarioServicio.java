@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,30 +15,15 @@ import com.calendar.calendar.core.interfaces.repositories.ICalendarioRepositorio
 import com.calendar.calendar.core.interfaces.services.ICalendarioServicio;
 import com.calendar.calendar.domain.Calendario;
 import com.calendar.calendar.domain.Tipo;
-import com.calendar.calendar.utils.HttpHandler;
-
+import com.calendar.calendar.domain.DTOs.FestivoDto;
 @Service
 public class CalendarioServicio implements ICalendarioServicio {
     @Autowired
     private ICalendarioRepositorio calendarioRepositorio;
 
-    private List<LocalDate> getFestivos(int año) {
-        try {
-            HttpHandler handler = new HttpHandler("http://localhost:3030", "/festivos/" + año);
-            String[] arr_fechas_tmp = handler.getRequest().replace("[", "").replace("]", "").replace("\"", "")
-                    .split(","); // Si quita caracteres comodines.
-            List<LocalDate> fechas = new ArrayList<>();
-            for (String fecha : arr_fechas_tmp) {
-                fechas.add(LocalDate.parse(fecha));
-            }
-            return fechas;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    @Autowired
+    private FestivoCliente cliente;
 
-    
     private List<Calendario> getDiasAño(List<Calendario> festivos, List<Calendario> nofestivos) {
         List<Calendario> fechas = new ArrayList<>();
         fechas.addAll(festivos);
@@ -56,11 +42,16 @@ public class CalendarioServicio implements ICalendarioServicio {
         try {
             // Obtengo los festivos en base a la api de festivos y crea los objetos de la
             // clase Calendario.
-            List<LocalDate> festivos = getFestivos(año);
+
+            // Cambios respecto a la v1, en lugar de tener una lista LocalDate, se crea una
+            // lista de FestivoDto, y se accede al atributo con el getter.
+            List<FestivoDto> festivos = cliente.obtenerFestivos(año);
+            // La lógica para crear los festivos es la misma, cambia la fuente de los datos.
+
             List<Calendario> diasCalendario = new ArrayList<>();
-            for (LocalDate festivo : festivos) {
-                String diasemana = festivo.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
-                Calendario calendario = new Calendario(0, festivo, new Tipo(3),
+            for (FestivoDto festivo : festivos) {
+                String diasemana = festivo.getFecha().getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
+                Calendario calendario = new Calendario(0, festivo.getFecha(), new Tipo(3),
                         diasemana);
                 diasCalendario.add(calendario);
             }
@@ -77,8 +68,17 @@ public class CalendarioServicio implements ICalendarioServicio {
             // Obtengo el resto de días del año en base a los días festivos, es para no
             // tenerlos repetidos, ni tener que crear objetos duplicados de festivos.
             List<Calendario> diasCalendario = new ArrayList<>();
+            List<Calendario> diasFestivos = crearFestivos(año);
             // String[] fds = { "sábado", "domingo" };
-            List<LocalDate> festivos = getFestivos(año);
+            // List<LocalDate> festivos = diasFestivos.stream()
+            // .map(Calendario::getFecha) // Mapea cada objeto Calendario a su atributo
+            // fecha
+            // .collect(Collectors.toList()); // Colecta los resultados en una lista
+            List<LocalDate> festivos = new ArrayList<>();
+            for (Calendario dia : diasFestivos) {
+                festivos.add(dia.getFecha()); // Se obtiene la fecha de tipo LocalDate y se agrega a la lista.
+            }
+            // Se sigue el mismo flujo de la v1
             List<LocalDate> noFestivos = new ArrayList<>();
             LocalDate fecha = LocalDate.of(año, 1, 1);
             LocalDate finAño = LocalDate.of(año, 12, 31);
@@ -109,16 +109,6 @@ public class CalendarioServicio implements ICalendarioServicio {
             return null;
         }
 
-    }
-
-    @Override
-    public List<LocalDate> listarFestivos(int año) {
-        try {
-            return getFestivos(año);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     @Override
