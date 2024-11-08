@@ -26,6 +26,7 @@ public class CalendarioServicio implements ICalendarioServicio {
         try {
             HttpHandler handler = new HttpHandler("http://localhost:3030", "/festivos/" + año);
             List<FestivoDto> festivos = handler.getFestivos();
+            festivos.sort(Comparator.comparing(FestivoDto::getFecha));
             return festivos;
         } catch (Exception e) {
             e.printStackTrace();
