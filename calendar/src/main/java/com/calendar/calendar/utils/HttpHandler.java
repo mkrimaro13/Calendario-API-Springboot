@@ -6,6 +6,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
+
+import com.calendar.calendar.domain.dtos.FestivoDto;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class HttpHandler {
     private final String url;
@@ -16,7 +22,7 @@ public class HttpHandler {
         this.apiPath = apiPath;
     }
 
-    public String getRequest() {
+    public List<FestivoDto> getFestivos() {
         try {
             // Creo del objeto request que se va a enviar.
             HttpRequest request = HttpRequest.newBuilder()
@@ -28,11 +34,15 @@ public class HttpHandler {
             HttpClient client = HttpClient.newBuilder()
                     .version(Version.HTTP_2)
                     .build();
-            // Creación del objeto respuesta que va a almacenar la respuesta en tipo String sin importar como llegue
+            // Creación del objeto respuesta que va a almacenar la respuesta en tipo String
+            // sin importar como llegue
             HttpResponse<String> response = client.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            return body;
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            List<FestivoDto> festivos = mapper.readValue(response.body(), new TypeReference<List<FestivoDto>>() {
+            });
+            return festivos;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

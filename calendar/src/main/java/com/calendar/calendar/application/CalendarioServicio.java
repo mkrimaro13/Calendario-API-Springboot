@@ -14,6 +14,7 @@ import com.calendar.calendar.core.interfaces.repositories.ICalendarioRepositorio
 import com.calendar.calendar.core.interfaces.services.ICalendarioServicio;
 import com.calendar.calendar.domain.Calendario;
 import com.calendar.calendar.domain.Tipo;
+import com.calendar.calendar.domain.dtos.FestivoDto;
 import com.calendar.calendar.utils.HttpHandler;
 
 @Service
@@ -21,16 +22,11 @@ public class CalendarioServicio implements ICalendarioServicio {
     @Autowired
     private ICalendarioRepositorio calendarioRepositorio;
 
-    private List<LocalDate> getFestivos(int año) {
+    private List<FestivoDto> getFestivos(int año) {
         try {
             HttpHandler handler = new HttpHandler("http://localhost:3030", "/festivos/" + año);
-            String[] arr_fechas_tmp = handler.getRequest().replace("[", "").replace("]", "").replace("\"", "")
-                    .split(","); // Si quita caracteres comodines.
-            List<LocalDate> fechas = new ArrayList<>();
-            for (String fecha : arr_fechas_tmp) {
-                fechas.add(LocalDate.parse(fecha));
-            }
-            return fechas;
+            List<FestivoDto> festivos = handler.getFestivos();
+            return festivos;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -55,12 +51,12 @@ public class CalendarioServicio implements ICalendarioServicio {
         try {
             // Obtengo los festivos en base a la api de festivos y crea los objetos de la
             // clase Calendario.
-            List<LocalDate> festivos = getFestivos(año);
+            List<FestivoDto> festivos = getFestivos(año);
             List<Calendario> diasCalendario = new ArrayList<>();
-            for (LocalDate festivo : festivos) {
-                String diasemana = festivo.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
-                Calendario calendario = new Calendario(0, festivo, new Tipo(3),
-                        diasemana);
+            for (FestivoDto festivo : festivos) {
+                LocalDate fecha = festivo.getFecha();
+                String diasemana = fecha.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.of("es"));
+                Calendario calendario = new Calendario(0, fecha, new Tipo(3), diasemana);
                 diasCalendario.add(calendario);
             }
             return diasCalendario;
@@ -77,19 +73,25 @@ public class CalendarioServicio implements ICalendarioServicio {
             // tenerlos repetidos, ni tener que crear objetos duplicados de festivos.
             List<Calendario> diasCalendario = new ArrayList<>();
             // String[] fds = { "sábado", "domingo" };
-            List<LocalDate> festivos = getFestivos(año);
+            List<FestivoDto> festivos = getFestivos(año);
+
+            List<LocalDate> festivosSoloFechas = new ArrayList<>();
+            for (FestivoDto festivo : festivos) {
+                festivosSoloFechas.add(festivo.getFecha());
+            }
+
             List<LocalDate> noFestivos = new ArrayList<>();
             LocalDate fecha = LocalDate.of(año, 1, 1);
             LocalDate finAño = LocalDate.of(año, 12, 31);
             do {
-                if (!festivos.contains(fecha)) {
+                if (!festivosSoloFechas.contains(fecha)) {
                     noFestivos.add(fecha);
                 }
                 fecha = fecha.plusDays(1); // El método retorna un nuevo objeto no modifica el existente, se debe
                                            // reasignar
             } while (!fecha.isEqual(finAño));
             for (LocalDate dia : noFestivos) {
-                String diasemana = dia.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es"));
+                String diasemana = dia.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.of("es"));
                 // for (String diafds : fds) {
                 if (diasemana.equals("sábado") || diasemana.equals("domingo")) {
                     Calendario calendario = new Calendario(0, dia, new Tipo(2),
@@ -111,7 +113,7 @@ public class CalendarioServicio implements ICalendarioServicio {
     }
 
     @Override
-    public List<LocalDate> listarFestivos(int año) {
+    public List<FestivoDto> listarFestivos(int año) {
         try {
             return getFestivos(año);
         } catch (Exception e) {

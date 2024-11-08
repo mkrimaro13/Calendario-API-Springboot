@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.calendar.calendar.core.interfaces.services.ICalendarioServicio;
 import com.calendar.calendar.domain.Calendario;
+import com.calendar.calendar.domain.dtos.FestivoDto;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ public class CalendarioControlador {
     private ICalendarioServicio servicio;
 
     @GetMapping("/festivos/{año}")
-    public List<LocalDate> listarFestivos(@PathVariable int año) {
+    public List<FestivoDto> listarFestivos(@PathVariable int año) {
         return servicio.listarFestivos(año);
     }
 
