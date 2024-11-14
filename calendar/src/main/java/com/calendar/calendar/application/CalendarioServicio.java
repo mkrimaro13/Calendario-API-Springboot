@@ -24,7 +24,7 @@ public class CalendarioServicio implements ICalendarioServicio {
 
     private List<FestivoDto> getFestivos(int año) {
         try {
-            HttpHandler handler = new HttpHandler("http://localhost:3030", "/festivos/" + año);
+            HttpHandler handler = new HttpHandler("http://apifestivos:3030", "/festivos/" + año);
             List<FestivoDto> festivos = handler.getFestivos();
             festivos.sort(Comparator.comparing(FestivoDto::getFecha));
             return festivos;
@@ -56,7 +56,7 @@ public class CalendarioServicio implements ICalendarioServicio {
             List<Calendario> diasCalendario = new ArrayList<>();
             for (FestivoDto festivo : festivos) {
                 LocalDate fecha = festivo.getFecha();
-                String diasemana = fecha.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.of("es"));
+                String diasemana = fecha.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es"));
                 Calendario calendario = new Calendario(0, fecha, new Tipo(3), diasemana);
                 diasCalendario.add(calendario);
             }
@@ -92,7 +92,7 @@ public class CalendarioServicio implements ICalendarioServicio {
                                            // reasignar
             } while (!fecha.isEqual(finAño));
             for (LocalDate dia : noFestivos) {
-                String diasemana = dia.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.of("es"));
+                String diasemana = dia.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es"));
                 // for (String diafds : fds) {
                 if (diasemana.equals("sábado") || diasemana.equals("domingo")) {
                     Calendario calendario = new Calendario(0, dia, new Tipo(2),
