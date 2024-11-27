@@ -41,7 +41,7 @@ pipeline {
         stage('Desplegar Contenedor Docker') {
             steps {
                 script {
-                    bat 'docker container run --network %DOCKER_NETWORK% --name %DOCKER_CONTAINER% -p 3000:3030 -d %DOCKER_IMAGE%'
+                    bat 'docker container run --network %DOCKER_NETWORK% --name %DOCKER_CONTAINER% -p 8081:8080 -d %DOCKER_IMAGE%'
                 }
             }
         }
