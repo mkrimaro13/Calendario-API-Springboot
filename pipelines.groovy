@@ -17,7 +17,7 @@ pipeline {
         stage('Verificar si existe la red y crearla si es necesario') {
             steps {
                 script {
-                    bat 'docker network list --filter "name=%DOCKER_NETWORK%" | findstr . && docker network remove %DOCKER_NETWORK%  || docker network create %DOCKER_NETWORK% || echo No hay red'
+                    bat 'docker network list --filter "name=%DOCKER_NETWORK%" | findstr . || docker network create %DOCKER_NETWORK% || echo No hay red'
                 }
             }
         }
